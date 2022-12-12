@@ -26,11 +26,9 @@ compile_all() {
 	src=$(find $src_dir -name "*.c" | cut -d "/" -f2-)
 	obj=""
 	for f in $src; do 
-		compile $f
-	done
-	for f in $src; do
 		crt_obj=$obj_dir$(echo $f | sed "s/.c/.o/g")
 		obj="$obj $crt_obj"
+		compile $f
 	done
 	compile_name $obj
 }
