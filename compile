@@ -1,0 +1,56 @@
+#!/bin/bash
+
+name="materials"
+obj_dir="obj/"
+src_dir="src/"
+cc="clang"
+cflags="-Wall -Werror -Wextra"
+inc="-Iinclude -Imlx"
+lib="-Lmlx -lmlx -lXext -lX11 -lm -lz -g"
+
+generate_dirs() {
+	dir=$obj_dir$(dirname $1)
+	mkdir -p $dir
+}
+
+compile() {
+	generate_dirs $1
+	$cc $cflags $src_dir$1 -o $obj_dir$(echo $1 | sed "s/.c/.o/g") -c $inc
+}
+
+compile_name() {
+	$cc $cflags $@ -o $name $lib 
+}
+
+compile_all() {
+	src=$(find $src_dir -name "*.c" | cut -d "/" -f2-)
+	obj=""
+	for f in $src; do 
+		compile $f
+	done
+	for f in $src; do
+		crt_obj=$obj_dir$(echo $f | sed "s/.c/.o/g")
+		obj="$obj $crt_obj"
+	done
+	compile_name $obj
+}
+
+clean () {
+	rm -rf $obj_dir
+}
+
+fclean () {
+	clean
+	rm -f $name
+}
+
+if [[ "$1" == "clean" ]]; then
+	clean
+elif [[ "$1" == "fclean" ]]; then
+	fclean
+elif [[ "$1" == "re" ]]; then
+	fclean
+	compile_all
+else
+	compile_all
+fi
